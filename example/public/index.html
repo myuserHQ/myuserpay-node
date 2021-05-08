@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyUser Demo</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; }
+    #custom { width: 300px; margin-bottom: 30px; border: 1px solid #aaa; border-radius: 6px; padding: 5px 10px; }
+  </style>
+</head>
+<body>
+  <h3>1. Save card</h3>
+  <div id="custom"></div>
+  <h5>Test card</h5>
+  <p><small>
+    Card number: <code>4111 1111 1111 1111</code><br />
+    Exp. date: random date in future<br />
+    Security code: random 3 digits
+  </small></p>
+  <button onclick="save()">Save</button>
+  <pre id="output"></pre>
+
+  <h3>2. Charge saved card</h3>
+  <button onclick="charge()">Charge</button>
+  <pre id="output2"></pre>
+
+  <h3>3. Refund previous transaction</h3>
+  <button onclick="refund()">Refund</button>
+  <pre id="output3"></pre>
+
+  <script src="https://api.myuser.com/js/checkout.js"></script>
+  <script type="text/javascript">
+    MyUserPay.setKey('{{publicKey}}');
+    const elementId = MyUserPay.createElement('#custom', { amount: 1000 });
+
+    let previousToken;
+    let previousCharge;
+
+    function save() {
+      MyUserPay.createElementToken(elementId, function (data) {
+        if (data.status) {
+          fetch('/save', {
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers: { 'content-type': 'application/json;charset=utf-8' }
+          })
+            .then(res => res.json())
+            .then(json => {
+              document.getElementById('output').innerText = JSON.stringify(json, undefined, 2);
+              previousToken = json.src_id;
+            });
+        } else {
+          console.error(data);
+        }
+      });
+    }
+
+    function charge() {
+      fetch('/charge', {
+        method: 'POST',
+        body: JSON.stringify({ token: previousToken }),
+        headers: { 'content-type': 'application/json;charset=utf-8' }
+      })
+      .then(res => res.json())
+      .then(json => {
+        document.getElementById('output2').innerText = JSON.stringify(json, undefined, 2);
+        previousCharge = json.id;
+      });
+    }
+
+    function refund() {
+      fetch('/refund', {
+        method: 'POST',
+        body: JSON.stringify({ charge: previousCharge }),
+        headers: { 'content-type': 'application/json;charset=utf-8' }
+      })
+      .then(res => res.json())
+      .then(json => {
+        document.getElementById('output3').innerText = JSON.stringify(json, undefined, 2);
+      });
+    }
+  </script>
+</body>
+</html>

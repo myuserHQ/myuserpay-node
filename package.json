@@ -1,0 +1,24 @@
+{
+  "name": "myuserpay",
+  "version": "0.1.0",
+  "description": "Myuser.com API for node.js based applications",
+  "main": "lib/index.js",
+  "author": "MyUser Inc",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "axios": "^0.21.1",
+    "qs": "^6.10.1"
+  },
+  "devDependencies": {
+    "@types/node": "^15.0.2",
+    "@types/qs": "^6.9.6",
+    "typescript": "^4.2.4"
+  },
+  "scripts": {
+    "build": "rm -rf lib && tsc",
+    "start": "node .",
+    "dev": "yarn build && yarn start",
+    "example": "yarn build && rm -rf example/node_modules && cd example && yarn && yarn start"
+  }
+}
